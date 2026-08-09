@@ -1,0 +1,13 @@
+.venv/
+**/__pycache__/
+**/*.pyc
+.pytest_cache/
+node_modules/
+sdk-js/node_modules/
+sdk-js/dist/
+tastegraph-web/node_modules/
+tastegraph-web/dist/
+tests/
+.git/
+.claude/
+*.log

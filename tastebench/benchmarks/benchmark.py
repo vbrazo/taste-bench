@@ -57,6 +57,10 @@ class Results:
                 "n_model_error": self.disagreement.n_model_error,
                 "n_ambiguous": self.disagreement.n_ambiguous,
                 "top_patterns": self.disagreement.top_patterns,
+                "semantic_clusters": [
+                    {"label": c.label, "size": c.size, "representative": c.representative}
+                    for c in (self.disagreement.semantic_clusters or [])
+                ],
             },
             "predictions": [p.model_dump() for p in self.predictions],
             "reproducibility": self.reproducibility,
@@ -90,7 +94,9 @@ class Benchmark:
         path = Path(path)
         return cls(load_jsonl(path), name=name or path.stem)
 
-    def evaluate(self, judge: Judge, *, max_workers: Optional[int] = None) -> Results:
+    def evaluate(
+        self, judge: Judge, *, max_workers: Optional[int] = None, semantic: bool = False
+    ) -> Results:
         predictions = run_judge(judge, self.examples, max_workers=max_workers)
         return Results(
             dataset_name=self.name,
@@ -100,7 +106,7 @@ class Benchmark:
             human_ceiling=human_agreement_ceiling(self.examples),
             calibration=calibration_report(self.examples, predictions),
             criterion_scores=criterion_accuracy(self.examples, predictions),
-            disagreement=analyze_disagreements(self.examples, predictions),
+            disagreement=analyze_disagreements(self.examples, predictions, semantic=semantic),
             predictions=predictions,
             reproducibility=judge.reproducibility(),
         )

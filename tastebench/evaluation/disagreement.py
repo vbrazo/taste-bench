@@ -85,6 +85,9 @@ class DisagreementReport:
     n_model_error: int  # disagreements on strong-consensus examples
     n_ambiguous: int  # disagreements where experts were split anyway
     pattern_counts: dict[str, int]  # tag -> frequency among model errors
+    # Populated only when analyze_disagreements(..., semantic=True); each item is a
+    # tastebench.evaluation.clustering.RationaleCluster.
+    semantic_clusters: Optional[list] = None
 
     @property
     def top_patterns(self) -> list[tuple[str, int]]:
@@ -95,6 +98,8 @@ def analyze_disagreements(
     examples: list[PreferenceExample],
     predictions: list[Judgment],
     ambiguity_threshold: float = 0.6,
+    *,
+    semantic: bool = False,
 ) -> DisagreementReport:
     disagreements = extract_disagreements(examples, predictions, ambiguity_threshold)
     model_errors = [d for d in disagreements if not d.is_ambiguous]
@@ -104,9 +109,16 @@ def analyze_disagreements(
     for d in model_errors:  # only count patterns where the judge was genuinely wrong
         pattern_counts.update(d.tags)
 
+    semantic_clusters = None
+    if semantic:
+        from .clustering import cluster_rationales  # lazy: optional dependency
+
+        semantic_clusters = cluster_rationales(model_errors)
+
     return DisagreementReport(
         disagreements=disagreements,
         n_model_error=len(model_errors),
         n_ambiguous=len(ambiguous),
         pattern_counts=dict(pattern_counts),
+        semantic_clusters=semantic_clusters,
     )

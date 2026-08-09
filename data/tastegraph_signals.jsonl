@@ -1,0 +1,8 @@
+{"user_id": "u_minimal", "asset_id": "asset_01", "action": "like"}
+{"user_id": "u_minimal", "asset_id": "asset_09", "action": "save"}
+{"user_id": "u_minimal", "asset_id": "asset_02", "action": "click"}
+{"user_id": "u_minimal", "asset_id": "asset_03", "action": "dismiss"}
+{"user_id": "u_street", "asset_id": "asset_03", "action": "save"}
+{"user_id": "u_street", "asset_id": "asset_10", "action": "like"}
+{"user_id": "u_street", "asset_id": "asset_04", "action": "click"}
+{"user_id": "u_street", "asset_id": "asset_09", "action": "dismiss"}

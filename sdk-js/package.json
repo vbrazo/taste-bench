@@ -1,0 +1,27 @@
+{
+  "name": "@tastegraph/sdk",
+  "version": "0.1.0",
+  "description": "Browser/Node capture SDK for TasteGraph — emits behavioral signals to the taste graph.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "test": "vitest run"
+  },
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "tsup": "^8",
+    "typescript": "^5",
+    "vitest": "^1"
+  }
+}

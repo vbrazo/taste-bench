@@ -1,0 +1,72 @@
+:root {
+  --bg: #17130f;
+  --panel: #201a15;
+  --line: rgba(255, 255, 255, 0.09);
+  --text: #efe9dd;
+  --muted: #9a9082;
+  --accent: #4a6e7e;
+  --wine: #3a2530;
+}
+/* dark heatmap tab (lives inside the dashboard shell) */
+.heatmap { display: grid; grid-template-columns: 1fr 420px; min-height: calc(100vh - 58px); background: var(--bg); color: var(--text); }
+
+/* ---- media stage ---- */
+.stage-col { position: relative; background: #000; }
+.player { display: flex; flex-direction: column; height: calc(100vh - 58px); }
+.player.empty { align-items: center; justify-content: center; color: var(--muted); }
+.task-bar { position: absolute; top: 16px; left: 16px; z-index: 2; display: flex; align-items: center; gap: 8px;
+  background: var(--wine); padding: 6px 10px; border-radius: 999px; }
+.task-label { font-size: 11px; letter-spacing: .12em; color: var(--muted); }
+.task-bar select { background: transparent; color: var(--text); border: none; font-weight: 600; }
+.stage { position: relative; flex: 1; overflow: hidden; }
+.stage-fill { position: absolute; inset: 0; opacity: .85; }
+.stage-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.caption { position: absolute; bottom: 28px; left: 0; right: 0; text-align: center; font-family: Georgia, serif;
+  font-size: 26px; text-shadow: 0 2px 8px rgba(0,0,0,.8); padding: 0 24px; }
+.clip-meta { position: absolute; bottom: 8px; left: 16px; font-size: 10px; letter-spacing: .14em; color: rgba(255,255,255,.7); }
+.controls { display: flex; gap: 8px; padding: 14px; background: #0c0a08; flex-wrap: wrap; }
+.controls button { background: var(--panel); color: var(--text); border: 1px solid var(--line);
+  border-radius: 8px; padding: 10px 14px; cursor: pointer; font-size: 14px; }
+.controls button:hover { border-color: var(--accent); }
+
+/* ---- sidebar ---- */
+.sidebar { background: var(--bg); border-left: 1px solid var(--line); padding: 22px 20px; overflow-y: auto; height: calc(100vh - 58px); }
+.eyebrow { font-size: 10px; letter-spacing: .18em; color: var(--muted); }
+.side-title { font-family: Georgia, serif; font-weight: 500; font-size: 30px; margin: 6px 0; }
+.sub { color: var(--muted); font-size: 13px; line-height: 1.5; margin: 0 0 18px; }
+
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 16px; }
+.panel-head { display: flex; justify-content: space-between; align-items: center; font-size: 11px;
+  letter-spacing: .12em; color: var(--muted); margin-bottom: 10px; }
+.reset-all { background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 8px;
+  padding: 8px 10px; font-size: 12px; cursor: pointer; width: 100%; margin-top: 6px; }
+.reset-all:hover { color: var(--text); }
+
+.affinity-svg { width: 100%; height: auto; display: block; }
+.hex-label { fill: var(--muted); font-size: 10px; letter-spacing: .05em; }
+
+.list-label { font-size: 10px; letter-spacing: .14em; color: var(--muted); margin: 12px 0 6px; }
+.browse-list { display: flex; flex-direction: column; gap: 6px; max-height: 190px; overflow-y: auto; }
+.row { text-align: left; background: #17120e; border: 1px solid var(--line); color: var(--text);
+  border-radius: 8px; padding: 10px 12px; cursor: pointer; font-size: 14px; }
+.row-active { border-color: var(--accent); background: #1c2830; }
+.row-static { cursor: default; }
+.empty { color: var(--muted); font-size: 13px; padding: 4px; }
+
+.explain-btn { width: 100%; background: var(--wine); color: var(--text); border: none; border-radius: 10px;
+  padding: 14px; font-size: 15px; cursor: pointer; }
+.explain-text { color: var(--muted); font-size: 13px; line-height: 1.5; margin-top: 10px; }
+
+.stream { font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--muted);
+  max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; }
+.stream-row { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---- responsive / mobile ---- */
+@media (max-width: 900px) {
+  .heatmap { grid-template-columns: 1fr; }
+  .sidebar { height: auto; border-left: none; border-top: 1px solid var(--line); }
+  .player { height: 60vh; }
+  .stage-col { position: static; }
+  .controls button { flex: 1 1 40%; padding: 14px; }
+  .browse-list { max-height: 260px; }
+}

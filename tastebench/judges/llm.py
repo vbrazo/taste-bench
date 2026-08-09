@@ -60,24 +60,44 @@ class LLMJudge(Judge):
             blocks.append(f"Candidate {c.id}:\n{c.render()}")
         return "\n\n".join(blocks)
 
-    def build_prompt(self, example: PreferenceExample) -> str:
+    def _criteria_str(self, example: PreferenceExample) -> str:
         criteria = self.criteria_override or example.criteria
-        criteria_str = ", ".join(criteria) if criteria else "(none specified)"
+        return ", ".join(criteria) if criteria else "(none specified)"
+
+    def build_prompt(self, example: PreferenceExample) -> str:
         return self.prompt_template.format(
             task=example.task,
-            criteria=criteria_str,
+            criteria=self._criteria_str(example),
             candidates=self._render_candidates(example),
         )
+
+    def build_messages(self, example: PreferenceExample) -> list[dict]:
+        """Provider messages for one example.
+
+        Text-only examples send a single string prompt. When any candidate is an
+        image, the same template is split around the ``{candidates}`` slot and the
+        candidates are sent as interleaved multimodal content parts.
+        """
+        from .content import build_multimodal_content, has_image
+
+        if not has_image(example):
+            return [{"role": "user", "content": self.build_prompt(example)}]
+
+        head, _, tail = self.prompt_template.partition("{candidates}")
+        fmt = {"task": example.task, "criteria": self._criteria_str(example)}
+        preamble = head.format(**fmt)
+        trailer = tail.format(**fmt)
+        content = build_multimodal_content(preamble, example, trailer)
+        return [{"role": "user", "content": content}]
 
     # ---- inference ---------------------------------------------------------
 
     def predict(self, example: PreferenceExample) -> Judgment:
         import litellm  # imported lazily so the package imports without a key
 
-        prompt = self.build_prompt(example)
         response = litellm.completion(
             model=self.model,
-            messages=[{"role": "user", "content": prompt}],
+            messages=self.build_messages(example),
             temperature=self.temperature,
             max_tokens=self.max_tokens,
         )
