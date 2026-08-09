@@ -1,0 +1,33 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tastebench"
+version = "0.1.0"
+description = "Open-source infrastructure for evaluating subjective AI judgment via pairwise preference."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "TasteBench contributors" }]
+keywords = ["evaluation", "llm", "preference", "benchmark", "subjective", "judge"]
+dependencies = [
+    "pydantic>=2",
+    "litellm>=1.0",
+    "pyyaml>=6",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.scripts]
+tastebench = "tastebench.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/tastebench/tastebench"
+
+[tool.hatch.build.targets.wheel]
+packages = ["tastebench"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
