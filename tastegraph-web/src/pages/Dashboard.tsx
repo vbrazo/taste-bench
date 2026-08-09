@@ -3,8 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth";
 import { HeatmapTab } from "./HeatmapTab";
 import { PlaygroundTab } from "./PlaygroundTab";
+import { IntelligenceTab } from "./IntelligenceTab";
 
-type Tab = "heatmap" | "playground";
+type Tab = "heatmap" | "playground" | "intelligence";
 
 export function Dashboard() {
   const { mode, endpoint, logout } = useAuth();
@@ -23,6 +24,7 @@ export function Dashboard() {
         <div className="tabs">
           <button className={tab === "heatmap" ? "tab on" : "tab"} onClick={() => setTab("heatmap")}>Taste heatmap</button>
           <button className={tab === "playground" ? "tab on" : "tab"} onClick={() => setTab("playground")}>API playground</button>
+          <button className={tab === "intelligence" ? "tab on" : "tab"} onClick={() => setTab("intelligence")}>Intelligence</button>
         </div>
         <div className="dash-right">
           <span className="status-pill">
@@ -32,7 +34,7 @@ export function Dashboard() {
         </div>
       </header>
       <div className="dash-body">
-        {tab === "heatmap" ? <HeatmapTab /> : <PlaygroundTab />}
+        {tab === "heatmap" ? <HeatmapTab /> : tab === "playground" ? <PlaygroundTab /> : <IntelligenceTab />}
       </div>
     </div>
   );

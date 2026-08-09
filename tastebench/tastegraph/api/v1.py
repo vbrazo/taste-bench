@@ -145,6 +145,13 @@ def build_v1_router(require_engine):
                 return c
         raise HTTPException(status_code=404, detail="No such cluster.")
 
+    @router.get("/skills")
+    def skills():
+        """OpenAI-style agent tool schemas for TasteGraph (Taste OS Phase A)."""
+        from ..skills import skills_payload
+
+        return skills_payload()
+
     return router
 
 

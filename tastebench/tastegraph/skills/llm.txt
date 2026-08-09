@@ -1,0 +1,40 @@
+# TasteGraph agent skills (llm.txt)
+
+TasteGraph is open taste infrastructure for agents. Use these skills to personalize,
+rerank, ask, and explain relative to a user — without baking domain logic into the model.
+
+## Setup
+
+```bash
+pip install -e ".[tastegraph,web]"
+tastebench tastegraph serve --assets data/tastegraph_assets.jsonl --port 8000
+```
+
+Base URL: `http://127.0.0.1:8000` (or your deploy). Optional header: `X-API-Key`.
+
+Fetch live tool schemas:
+
+```bash
+curl -s http://127.0.0.1:8000/v1/skills
+```
+
+Or load from the package: `tastebench/tastegraph/skills/tools.json`.
+
+## Tools → HTTP
+
+| Tool | HTTP |
+|------|------|
+| taste_context | GET /agent-context/{user_id} |
+| taste_search | POST /v1/search `{"user_id","k"}` |
+| taste_rerank | POST /v1/rerank `{"user_id","candidates"}` |
+| taste_ask | POST /v1/ask `{"user_id","question"}` |
+| taste_explain | POST /v1/explain `{"user_id","candidates":[]}` |
+| taste_metrics | GET /metrics |
+
+## Minimal loop
+
+1. Ensure user + content entities exist (`POST /v1/entity`).
+2. Build taste (`POST /v1/entity/{user}/link` with action like|save|dismiss|…).
+3. Call taste_search / taste_rerank / taste_ask / taste_context as needed.
+
+Docs: docs/v1-api.md · Category roadmap: docs/taste-os.md

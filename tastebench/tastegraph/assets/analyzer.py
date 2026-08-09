@@ -23,12 +23,23 @@ from .schema import (
 _STYLES = ["minimal", "editorial", "streetwear", "vintage", "luxe", "playful"]
 _MOODS = ["calm", "bold", "moody", "warm", "energetic", "serene"]
 _TRENDS = ["y2k", "quiet-luxury", "cottagecore", "techwear", "coastal", "grunge"]
+_SILHOUETTES = ["relaxed", "tailored", "oversized", "fitted", "fluid"]
+_TEXTURES = ["linen", "silk", "matte", "gloss", "knit", "denim"]
+_LIGHTING = ["soft", "hard", "natural", "studio", "golden-hour"]
+_DENSITY = ["sparse", "balanced", "dense"]
+_SEASONS = ["spring", "summer", "fall", "winter", "all-season"]
+_SETTINGS = ["studio", "street", "indoor", "outdoor", "editorial"]
+_CHANNELS = ["social", "editorial", "pdp", "email", "ads"]
+_FUNNEL = ["awareness", "consideration", "conversion"]
 _PALETTES = [
     ["#2b2b2b", "#e8e2d6", "#8a8a8a"],
     ["#ff3366", "#111111", "#f5f5f5"],
     ["#7a9e7e", "#efe9dd", "#3b3b3b"],
     ["#1a237e", "#ff6f00", "#fafafa"],
 ]
+_TOPICS = ["fashion", "lifestyle", "product", "portrait", "interior"]
+_MATERIALS = ["cotton", "wool", "leather", "metal", "wood", "ceramic"]
+_COLORS = ["sand", "ink", "blush", "olive", "ivory", "navy"]
 
 
 class AssetAnalyzer(Protocol):
@@ -52,14 +63,19 @@ class MockAssetAnalyzer:
 
     def analyze(self, asset: Asset) -> AssetFingerprint:
         key = f"{asset.id}:{asset.render()}"
-        h = _hash_ints(key, 8)
+        h = _hash_ints(key, 16)
         style = _STYLES[h[0] % len(_STYLES)]
         mood = _MOODS[h[1] % len(_MOODS)]
         trend = _TRENDS[h[2] % len(_TRENDS)]
         palette = _PALETTES[h[3] % len(_PALETTES)]
         score = round(0.4 + (h[4] % 60) / 100, 3)
+        silhouette = _SILHOUETTES[h[8] % len(_SILHOUETTES)]
+        texture = _TEXTURES[h[9] % len(_TEXTURES)]
+        season = _SEASONS[h[10] % len(_SEASONS)]
+        topic = _TOPICS[h[11] % len(_TOPICS)]
 
         emb = [((b / 255.0) * 2 - 1) for b in _hash_ints(key + ":emb", self.embedding_dim)]
+        u01 = lambda i: round(h[i] / 255, 2)
 
         return AssetFingerprint(
             asset_id=asset.id,
@@ -67,13 +83,59 @@ class MockAssetAnalyzer:
                 caption=f"A {style} {asset.type} asset",
                 entities=[style, trend],
                 objects=["subject", "background"],
+                topics=[topic, trend],
+                materials=[_MATERIALS[h[12] % len(_MATERIALS)]],
+                colors_named=[_COLORS[h[13] % len(_COLORS)], _COLORS[h[14] % len(_COLORS)]],
             ),
-            emotional=Emotional(mood=mood, tone=mood, sentiment=round((h[5] % 200) / 100 - 1, 2)),
-            aesthetic=Aesthetic(style=style, palette=palette, composition="centered"),
-            technical=Technical(resolution="1024x1024", sharpness=round(h[6] / 255, 2), quality=score),
-            contextual=Contextual(location="studio", era="contemporary", trend=trend),
-            intent=Intent(purpose="showcase", cta="shop", commercial=round(h[7] / 255, 2)),
-            advanced=Advanced(saliency=round(h[0] / 255, 2), score=score, embedding=emb),
+            emotional=Emotional(
+                mood=mood,
+                tone=mood,
+                sentiment=round((h[5] % 200) / 100 - 1, 2),
+                energy=u01(6),
+                formality=u01(7),
+            ),
+            aesthetic=Aesthetic(
+                style=style,
+                palette=palette,
+                composition="centered",
+                silhouette=silhouette,
+                texture=texture,
+                lighting=_LIGHTING[h[15] % len(_LIGHTING)],
+                density=_DENSITY[h[0] % len(_DENSITY)],
+            ),
+            technical=Technical(
+                resolution="1024x1024",
+                sharpness=round(h[6] / 255, 2),
+                quality=score,
+                aspect_ratio="1:1",
+                noise=u01(8),
+                compression="jpeg",
+            ),
+            contextual=Contextual(
+                location="studio",
+                era="contemporary",
+                trend=trend,
+                season=season,
+                culture="global",
+                setting=_SETTINGS[h[1] % len(_SETTINGS)],
+                audience="general",
+            ),
+            intent=Intent(
+                purpose="showcase",
+                cta="shop",
+                commercial=round(h[7] / 255, 2),
+                channel=_CHANNELS[h[2] % len(_CHANNELS)],
+                urgency=u01(9),
+                funnel_stage=_FUNNEL[h[3] % len(_FUNNEL)],
+            ),
+            advanced=Advanced(
+                saliency=round(h[0] / 255, 2),
+                score=score,
+                embedding=emb,
+                complexity=u01(10),
+                uniqueness=u01(11),
+                coherence=u01(12),
+            ),
         )
 
 
@@ -82,13 +144,13 @@ You are an expert visual/content analyst. Analyze the asset across SEVEN dimensi
 return ONLY a JSON object with exactly these keys:
 
 {{
-  "semantic": {{"caption": str, "entities": [str], "objects": [str]}},
-  "emotional": {{"mood": str, "tone": str, "sentiment": float -1..1}},
-  "aesthetic": {{"style": str, "palette": [str hex], "composition": str}},
-  "technical": {{"resolution": str, "sharpness": float 0..1, "quality": float 0..1}},
-  "contextual": {{"location": str, "era": str, "trend": str}},
-  "intent": {{"purpose": str, "cta": str, "commercial": float 0..1}},
-  "advanced": {{"saliency": float 0..1, "score": float 0..1}}
+  "semantic": {{"caption": str, "entities": [str], "objects": [str], "topics": [str], "materials": [str], "colors_named": [str]}},
+  "emotional": {{"mood": str, "tone": str, "sentiment": float -1..1, "energy": float 0..1, "formality": float 0..1}},
+  "aesthetic": {{"style": str, "palette": [str hex], "composition": str, "silhouette": str, "texture": str, "lighting": str, "density": str}},
+  "technical": {{"resolution": str, "sharpness": float 0..1, "quality": float 0..1, "aspect_ratio": str, "noise": float 0..1, "compression": str}},
+  "contextual": {{"location": str, "era": str, "trend": str, "season": str, "culture": str, "setting": str, "audience": str}},
+  "intent": {{"purpose": str, "cta": str, "commercial": float 0..1, "channel": str, "urgency": float 0..1, "funnel_stage": str}},
+  "advanced": {{"saliency": float 0..1, "score": float 0..1, "complexity": float 0..1, "uniqueness": float 0..1, "coherence": float 0..1}}
 }}
 
 Task context: describe the asset's taste fingerprint for a personalization system.

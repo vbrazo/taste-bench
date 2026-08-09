@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "./App";
 import { AuthProvider } from "./auth";
 import { HeatmapTab } from "./pages/HeatmapTab";
+import { IntelligenceTab } from "./pages/IntelligenceTab";
 
 const BUNDLE = {
   assets: [
@@ -44,5 +45,19 @@ describe("HeatmapTab", () => {
     );
     expect(await screen.findByText("Taste heatmap")).toBeInTheDocument();
     expect(screen.getByTestId("heatmap-tab")).toBeInTheDocument();
+  });
+});
+
+describe("IntelligenceTab", () => {
+  it("shows connect empty state in local / unauthed mode", () => {
+    render(
+      <MemoryRouter>
+        <AuthProvider>
+          <IntelligenceTab />
+        </AuthProvider>
+      </MemoryRouter>,
+    );
+    expect(screen.getByTestId("intelligence-tab")).toBeInTheDocument();
+    expect(screen.getByText(/Connect to a server/i)).toBeInTheDocument();
   });
 });

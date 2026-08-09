@@ -1,0 +1,95 @@
+{
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "taste_context",
+        "description": "Structured taste read for a user subject (principles, avoid, confidence, top assets). GET /agent-context/{user_id}",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "user_id": { "type": "string", "description": "Audience / user subject id" }
+          },
+          "required": ["user_id"]
+        },
+        "x-tastegraph": { "method": "GET", "path": "/agent-context/{user_id}" }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "taste_search",
+        "description": "Discover content by a user's taste. POST /v1/search",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "user_id": { "type": "string" },
+            "k": { "type": "integer", "default": 8 }
+          },
+          "required": ["user_id"]
+        },
+        "x-tastegraph": { "method": "POST", "path": "/v1/search" }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "taste_rerank",
+        "description": "Reorder candidate content ids by a user's taste. POST /v1/rerank",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "user_id": { "type": "string" },
+            "candidates": { "type": "array", "items": { "type": "string" } }
+          },
+          "required": ["user_id", "candidates"]
+        },
+        "x-tastegraph": { "method": "POST", "path": "/v1/rerank" }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "taste_ask",
+        "description": "Taste-personalized Q&A for a user. POST /v1/ask",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "user_id": { "type": "string" },
+            "question": { "type": "string" },
+            "k": { "type": "integer", "default": 5 }
+          },
+          "required": ["user_id", "question"]
+        },
+        "x-tastegraph": { "method": "POST", "path": "/v1/ask" }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "taste_explain",
+        "description": "Natural-language explanation of a user's taste. POST /v1/explain",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "user_id": { "type": "string" }
+          },
+          "required": ["user_id"]
+        },
+        "x-tastegraph": { "method": "POST", "path": "/v1/explain" }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "taste_metrics",
+        "description": "Customer-intelligence metrics for the tenant graph. GET /metrics",
+        "parameters": {
+          "type": "object",
+          "properties": {}
+        },
+        "x-tastegraph": { "method": "GET", "path": "/metrics" }
+      }
+    }
+  ]
+}

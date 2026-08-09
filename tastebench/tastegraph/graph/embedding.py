@@ -37,7 +37,12 @@ def encode_attributes(fp: AssetFingerprint):
         fp.emotional.mood,
         fp.contextual.trend,
         fp.aesthetic.composition,
+        fp.aesthetic.silhouette,
+        fp.aesthetic.texture,
+        fp.contextual.season,
+        fp.contextual.setting,
         *fp.aesthetic.palette,
+        *fp.semantic.topics[:2],
     ]
     vec = np.zeros(_ATTR_DIM)
     for t in tokens:

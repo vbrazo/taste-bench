@@ -141,6 +141,11 @@ into a joint-embedding taste graph, and exposes reranking / retrieval / agent-co
 models the *why* behind engagement, so it works for new users and new products from the
 first click instead of memorizing click history.
 
+**Taste OS** — TasteBench + TasteGraph define an open category: *open taste infrastructure
+for agents* (equal **audience** and **brand/voice** taste, agent-agnostic subjects, local
+and measurable). Category definition and phased roadmap: [docs/taste-os.md](docs/taste-os.md).
+Phase A agent tools: `GET /v1/skills` and [`tastebench/tastegraph/skills/llm.txt`](tastebench/tastegraph/skills/llm.txt).
+
 ```bash
 pip install -e ".[tastegraph]"   # numpy; add [web] for the API, [embeddings] for real vectors
 
