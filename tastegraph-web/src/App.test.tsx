@@ -24,7 +24,8 @@ describe("App routes", () => {
     window.history.pushState({}, "", "/");
     render(<App />);
     expect(screen.getAllByText("TasteGraph").length).toBeGreaterThan(0);
-    expect(screen.getByText(/Get\s*started/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Open dashboard/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/A taste graph builders can query/i)).toBeInTheDocument();
   });
 
   it("redirects /dashboard to /login when unauthenticated", async () => {
@@ -59,5 +60,20 @@ describe("IntelligenceTab", () => {
     );
     expect(screen.getByTestId("intelligence-tab")).toBeInTheDocument();
     expect(screen.getByText(/Connect to a server/i)).toBeInTheDocument();
+  });
+});
+
+describe("Login", () => {
+  it("offers connect and local mode", async () => {
+    const { Login } = await import("./pages/Login");
+    render(
+      <MemoryRouter>
+        <AuthProvider>
+          <Login />
+        </AuthProvider>
+      </MemoryRouter>,
+    );
+    expect(screen.getByText(/Connect to server/i)).toBeInTheDocument();
+    expect(screen.getByText(/Continue in local mode/i)).toBeInTheDocument();
   });
 });

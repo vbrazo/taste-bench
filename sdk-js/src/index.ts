@@ -6,7 +6,15 @@
  * contract test (tests/test_sdk_contract.py) validates the fixture in fixtures/signal.json.
  */
 
-export type Action = "view" | "click" | "like" | "save" | "dismiss";
+export type Action =
+  | "view"
+  | "click"
+  | "like"
+  | "save"
+  | "dismiss"
+  | "dwell"
+  | "deep_scroll"
+  | "deep_read";
 
 export interface Signal {
   user_id: string;
@@ -15,6 +23,7 @@ export interface Signal {
   weight?: number | null;
   timestamp: number; // seconds since epoch (matches Python time.time())
   session_id?: string | null;
+  dwell_ms?: number | null;
 }
 
 export interface TasteGraphOptions {
@@ -79,18 +88,29 @@ export class TasteGraph {
   }
 
   /** Build a Signal for the current user without sending it (used by track + tests). */
-  buildSignal(assetId: string, action: Action, sessionId?: string): Signal {
+  buildSignal(
+    assetId: string,
+    action: Action,
+    sessionId?: string,
+    opts?: { dwellMs?: number; weight?: number | null },
+  ): Signal {
     return {
       user_id: this.userId,
       asset_id: assetId,
       action,
       timestamp: nowSeconds(),
       session_id: sessionId ?? this.sessionId ?? null,
+      weight: opts?.weight ?? null,
+      dwell_ms: opts?.dwellMs ?? null,
     };
   }
 
-  track(assetId: string, action: Action, opts?: { sessionId?: string }): void {
-    this.queue.push(this.buildSignal(assetId, action, opts?.sessionId));
+  track(
+    assetId: string,
+    action: Action,
+    opts?: { sessionId?: string; dwellMs?: number; weight?: number | null },
+  ): void {
+    this.queue.push(this.buildSignal(assetId, action, opts?.sessionId, opts));
     if (this.queue.length >= this.batchSize) void this.flush();
   }
 

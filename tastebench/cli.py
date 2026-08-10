@@ -272,6 +272,32 @@ def _cmd_tg_serve(args: argparse.Namespace) -> int:  # pragma: no cover - runs a
     return 0
 
 
+def _cmd_tg_seed_demo(args: argparse.Namespace) -> int:
+    from .tastegraph.client import TasteGraphClient
+    from .tastegraph.demo_seed import seed_demo
+
+    client = TasteGraphClient(args.base_url, args.api_key)
+    result = seed_demo(client, args.subject_id)
+    subject = result["subject_id"]
+
+    if result["created"]:
+        print(f"Created: {', '.join(result['created'])}")
+    if result["existing"]:
+        print(f"Already present: {', '.join(result['existing'])}")
+    order = " > ".join(r["id"] for r in result["rerank"].get("results", []))
+    print(f"Seeded demo taste graph for '{subject}' at {client.base_url}.")
+    print(f"Rerank order: {order}")
+    print()
+    print("Next steps:")
+    print(f"  curl -s {client.base_url}/agent-context/{subject}")
+    print(f"  curl -sX POST {client.base_url}/v1/rerank -H 'Content-Type: application/json' \\")
+    print(f"    -d '{{\"user_id\":\"{subject}\",\"candidates\":[\"c_warm\",\"c_hype\"]}}'")
+    print(f"  curl -sX POST {client.base_url}/v1/judge -H 'Content-Type: application/json' \\")
+    print(f"    -d '{{\"subject_id\":\"{subject}\",\"candidates\":[\"c_warm\",\"c_hype\"]}}'")
+    print("  Wire an agent with the skill: skills/tastegraph/SKILL.md")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="tastebench", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -392,6 +418,14 @@ def build_parser() -> argparse.ArgumentParser:
     tg_tr.add_argument("--base-model", dest="base_model", default="distilbert-base-uncased")
     tg_tr.add_argument("--epochs", type=int, default=3)
     tg_tr.set_defaults(func=_cmd_tg_train)
+
+    tg_seed = tg_sub.add_parser(
+        "seed-demo", help="Seed the 10-minute demo taste graph on a running server (idempotent)."
+    )
+    tg_seed.add_argument("--base-url", dest="base_url", default="http://127.0.0.1:8000", help="TasteGraph server base URL.")
+    tg_seed.add_argument("--api-key", dest="api_key", default=None, help="Optional X-API-Key for tenant auth.")
+    tg_seed.add_argument("--subject-id", dest="subject_id", default="u_demo", help="Subject id to personalize for.")
+    tg_seed.set_defaults(func=_cmd_tg_seed_demo)
 
     return parser
 

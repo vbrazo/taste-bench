@@ -31,9 +31,23 @@ class TasteGraphSDK:
             self.log_path.parent.mkdir(parents=True, exist_ok=True)
 
     def track(
-        self, user_id: str, asset_id: str, action: Action, *, session_id: Optional[str] = None
+        self,
+        user_id: str,
+        asset_id: str,
+        action: Action,
+        *,
+        session_id: Optional[str] = None,
+        weight: Optional[float] = None,
+        dwell_ms: Optional[float] = None,
     ) -> Signal:
-        sig = Signal(user_id=user_id, asset_id=asset_id, action=action, session_id=session_id)
+        sig = Signal(
+            user_id=user_id,
+            asset_id=asset_id,
+            action=action,
+            session_id=session_id,
+            weight=weight,
+            dwell_ms=dwell_ms,
+        )
         self._buffer.append(sig)
         if self.log_path:
             with open(self.log_path, "a", encoding="utf-8") as fh:

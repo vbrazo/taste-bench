@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "domain": "fashion",
+  "entities": [
+    {"id": "look_linen", "type": "content", "content": "muted linen blazer soft tailoring"},
+    {"id": "look_neon", "type": "content", "content": "neon streetwear graphic hoodie"}
+  ],
+  "links": [],
+  "seed_affinities": [
+    {"from_id": "track_jazz", "to_id": "look_linen", "weight": 2.0},
+    {"from_id": "track_pop", "to_id": "look_neon", "weight": 2.0}
+  ]
+}

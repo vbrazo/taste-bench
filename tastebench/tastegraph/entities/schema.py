@@ -11,7 +11,7 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, Field
 
-EntityKind = Literal["user", "content"]
+EntityKind = Literal["user", "content", "brand"]
 
 
 class EntityType(BaseModel):
@@ -26,7 +26,7 @@ class EntityType(BaseModel):
 
 class Entity(BaseModel):
     id: str
-    type: str = "content"  # "user", "content", or a registered custom type name
+    type: str = "content"  # "user", "content", "brand", "voice", or a custom type name
     content: Optional[str] = None
     metadata: dict = Field(default_factory=dict)
     created_at: float = Field(default_factory=lambda: time.time())
@@ -34,7 +34,7 @@ class Entity(BaseModel):
 
 
 class Link(BaseModel):
-    source_id: str  # user entity
+    source_id: str  # user or brand entity
     target_id: str  # content entity
     action: str = "like"
     weight: Optional[float] = None

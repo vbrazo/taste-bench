@@ -79,6 +79,10 @@ export const v1 = {
   ask: (userId: string, question: string) => post("/v1/ask", { user_id: userId, question }),
   explain: (userId: string) => post("/v1/explain", { user_id: userId, candidates: [] }),
   clusters: () => json("/v1/clusters"),
+  brandIngest: (id: string, references: { id?: string; content: string }[], type = "brand", label?: string) =>
+    post("/v1/brand/ingest", { id, type, label, references }),
+  enhance: (subjectId: string, prompt: string) => post("/v1/enhance", { subject_id: subjectId, prompt }),
+  judge: (subjectId: string, candidates: string[]) => post("/v1/judge", { subject_id: subjectId, candidates }),
 };
 
 // ---- helpers used by the local heatmap ------------------------------------

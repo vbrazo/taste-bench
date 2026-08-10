@@ -12,7 +12,8 @@ export function Login() {
   const [busy, setBusy] = useState(false);
 
   const doConnect = async () => {
-    setBusy(true); setErr(null);
+    setBusy(true);
+    setErr(null);
     try {
       await connect(endpoint, key);
       nav("/dashboard");
@@ -24,22 +25,40 @@ export function Login() {
     }
   };
 
-  const doLocal = () => { continueLocal(); nav("/dashboard"); };
+  const doLocal = () => {
+    continueLocal();
+    nav("/dashboard");
+  };
 
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <Link to="/" className="brand"><span className="mark" />TasteGraph</Link>
+        <Link to="/" className="brand">
+          <span className="mark" />
+          TasteGraph
+        </Link>
         <h1>Sign in</h1>
-        <p className="sub">Connect to a TasteGraph server with an API key, or explore the taste
-          heatmap locally in your browser.</p>
+        <p className="sub">
+          Connect to a TasteGraph server with an API key, or continue locally with the heatmap.
+        </p>
 
         <label>Server endpoint</label>
-        <input value={endpoint} onChange={(e) => setEp(e.target.value)} placeholder="http://127.0.0.1:8000" />
+        <input
+          value={endpoint}
+          onChange={(e) => setEp(e.target.value)}
+          placeholder="http://127.0.0.1:8000"
+        />
 
-        <label>API key <span className="muted">(blank = dev mode)</span></label>
-        <input type="password" value={key} onChange={(e) => setKey(e.target.value)} placeholder="X-API-Key"
-          onKeyDown={(e) => e.key === "Enter" && doConnect()} />
+        <label>
+          API key <span className="muted">(blank = dev mode)</span>
+        </label>
+        <input
+          type="password"
+          value={key}
+          onChange={(e) => setKey(e.target.value)}
+          placeholder="X-API-Key"
+          onKeyDown={(e) => e.key === "Enter" && doConnect()}
+        />
 
         {err && <div className="auth-err">{err}</div>}
 
@@ -47,7 +66,9 @@ export function Login() {
           {busy ? "Connecting…" : "Connect to server"}
         </button>
         <div className="or">or</div>
-        <button className="ghost block" onClick={doLocal}>Continue in local mode →</button>
+        <button className="ghost block" onClick={doLocal}>
+          Continue in local mode →
+        </button>
       </div>
     </div>
   );

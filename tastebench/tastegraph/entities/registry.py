@@ -1,9 +1,9 @@
 """Per-engine entity registry (Galya-inspired facade over TasteGraphEngine).
 
 Maps the unified entity model onto engine primitives: content entities are ingested as
-assets (fingerprinted + embedded), user entities are tracked ids, and a *link* is a signal
-(the taste-building step). Custom types register a `kind` (user|content) that decides which
-path an entity of that type follows.
+assets (fingerprinted + embedded), user/brand entities are tracked ids, and a *link* is a
+signal (the taste-building step). Custom types register a `kind` (user|content|brand) that
+decides which path an entity of that type follows.
 """
 
 from __future__ import annotations
@@ -13,6 +13,8 @@ from typing import Optional
 from ..assets.schema import Asset
 from ..signals.schema import ACTION_WEIGHTS, Signal
 from .schema import Entity, EntityType, Link
+
+_SUBJECT_KINDS = frozenset({"user", "brand"})
 
 
 class EntityError(ValueError):
@@ -28,6 +30,8 @@ class EntityRegistry:
         self._types: dict[str, EntityType] = {
             "user": EntityType(name="user", kind="user"),
             "content": EntityType(name="content", kind="content"),
+            "brand": EntityType(name="brand", kind="brand"),
+            "voice": EntityType(name="voice", kind="brand"),
         }
 
     # ---- types -------------------------------------------------------------
@@ -44,6 +48,9 @@ class EntityRegistry:
         if et is None:
             raise EntityError(f"Unknown entity type {type_name!r}. Register it via /entity/type.")
         return et.kind
+
+    def is_subject(self, type_name: str) -> bool:
+        return self.kind_of(type_name) in _SUBJECT_KINDS
 
     # ---- entities ----------------------------------------------------------
 
@@ -62,9 +69,19 @@ class EntityRegistry:
                 metadata=entity.metadata,
             )
             self.engine.ingest([asset])
-        # user entities need no engine work until they link
+        # user / brand entities need no engine work until they link
         self._entities[entity.id] = entity
         return entity
+
+    def upsert(self, entity: Entity) -> Entity:
+        """Create or replace a non-content entity; content still goes through create/ingest."""
+        existing = self._entities.get(entity.id)
+        if existing is not None and not existing.hidden:
+            if self.kind_of(existing.type) == "content":
+                raise EntityError(f"Cannot upsert content entity {entity.id!r}; delete first.")
+            self._entities[entity.id] = entity
+            return entity
+        return self.create(entity)
 
     def get(self, entity_id: str) -> Entity:
         ent = self._entities.get(entity_id)
@@ -80,7 +97,7 @@ class EntityRegistry:
 
     def delete(self, entity_id: str) -> None:
         ent = self.get(entity_id)
-        if self.kind_of(ent.type) == "user":
+        if self.is_subject(ent.type):
             self.engine._signals.pop(entity_id, None)
             self._entities.pop(entity_id, None)
         else:
@@ -95,10 +112,10 @@ class EntityRegistry:
     # ---- links (taste building) -------------------------------------------
 
     def link(self, link: Link) -> Signal:
-        user = self._entities.get(link.source_id)
+        subject = self._entities.get(link.source_id)
         content = self._entities.get(link.target_id)
-        if user is None or self.kind_of(user.type) != "user":
-            raise EntityError(f"Link source {link.source_id!r} must be a user entity.")
+        if subject is None or not self.is_subject(subject.type):
+            raise EntityError(f"Link source {link.source_id!r} must be a user or brand entity.")
         if content is None or content.hidden or self.kind_of(content.type) != "content":
             raise EntityError(f"Link target {link.target_id!r} must be a content entity.")
         if link.action not in ACTION_WEIGHTS:

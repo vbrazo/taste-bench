@@ -34,6 +34,10 @@ class TrackBody(BaseModel):
     user_id: str
     asset_id: str
     action: str
+    weight: Optional[float] = None
+    session_id: Optional[str] = None
+    dwell_ms: Optional[float] = None
+    timestamp: Optional[float] = None
 
 
 class RerankBody(BaseModel):
@@ -115,7 +119,19 @@ def create_app(
 
     @app.post("/track")
     def track(body: TrackBody, eng: TasteGraphEngine = Depends(require_engine)):
-        eng.track_event(body.user_id, body.asset_id, body.action)
+        from ..signals.schema import Signal
+
+        kwargs = {
+            "user_id": body.user_id,
+            "asset_id": body.asset_id,
+            "action": body.action,
+            "weight": body.weight,
+            "session_id": body.session_id,
+            "dwell_ms": body.dwell_ms,
+        }
+        if body.timestamp is not None:
+            kwargs["timestamp"] = body.timestamp
+        eng.track(Signal(**kwargs))  # type: ignore[arg-type]
         return {"ok": True}
 
     @app.post("/rerank")

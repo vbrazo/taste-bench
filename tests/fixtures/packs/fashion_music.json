@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "domain": "music",
+  "entities": [
+    {"id": "u_pack", "type": "user"},
+    {"id": "track_jazz", "type": "content", "content": "late night jazz piano trio"},
+    {"id": "track_pop", "type": "content", "content": "bright pop chorus earworm"}
+  ],
+  "links": [
+    {"source_id": "u_pack", "target_id": "track_jazz", "action": "like"}
+  ],
+  "seed_affinities": []
+}

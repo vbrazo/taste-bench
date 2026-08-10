@@ -90,6 +90,66 @@
         },
         "x-tastegraph": { "method": "GET", "path": "/metrics" }
       }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "taste_brand_ingest",
+        "description": "Create/update a brand or voice subject from reference texts and link them as taste. POST /v1/brand/ingest",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "type": { "type": "string", "enum": ["brand", "voice"], "default": "brand" },
+            "label": { "type": "string" },
+            "references": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string" },
+                  "content": { "type": "string" }
+                },
+                "required": ["content"]
+              }
+            }
+          },
+          "required": ["id", "references"]
+        },
+        "x-tastegraph": { "method": "POST", "path": "/v1/brand/ingest" }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "taste_enhance",
+        "description": "Rewrite a prompt/draft to match a user or brand/voice subject's taste. POST /v1/enhance",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "subject_id": { "type": "string" },
+            "prompt": { "type": "string" }
+          },
+          "required": ["subject_id", "prompt"]
+        },
+        "x-tastegraph": { "method": "POST", "path": "/v1/enhance" }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "taste_judge",
+        "description": "Score draft candidates against a user or brand/voice subject's taste. POST /v1/judge",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "subject_id": { "type": "string" },
+            "candidates": { "type": "array", "items": { "type": "string" } }
+          },
+          "required": ["subject_id", "candidates"]
+        },
+        "x-tastegraph": { "method": "POST", "path": "/v1/judge" }
+      }
     }
   ]
 }

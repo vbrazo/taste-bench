@@ -141,10 +141,22 @@ into a joint-embedding taste graph, and exposes reranking / retrieval / agent-co
 models the *why* behind engagement, so it works for new users and new products from the
 first click instead of memorizing click history.
 
-**Taste OS** — TasteBench + TasteGraph define an open category: *open taste infrastructure
-for agents* (equal **audience** and **brand/voice** taste, agent-agnostic subjects, local
-and measurable). Category definition and phased roadmap: [docs/taste-os.md](docs/taste-os.md).
-Phase A agent tools: `GET /v1/skills` and [`tastebench/tastegraph/skills/llm.txt`](tastebench/tastegraph/skills/llm.txt).
+**TasteGraph for builders** — Where TasteBench *evaluates* taste, TasteGraph *serves* it:
+fingerprints, signals, and a joint-embedding taste graph for **rerank / ask / agent context**,
+plus an installable agent skill ([`skills/tastegraph/SKILL.md`](skills/tastegraph/SKILL.md),
+backed by `GET /v1/skills` / [`llm.txt`](tastebench/tastegraph/skills/llm.txt)) so coding agents
+wire preference instead of guessing. Enhance/judge keep drafts on-taste (“less slop”). This is
+**preference infrastructure, not a frontend pack.** **10-minute agent demo:**
+[docs/agent-demo.md](docs/agent-demo.md). Category notes: [docs/taste-os.md](docs/taste-os.md).
+
+Fastest path — serve, seed, and hand an agent the skill:
+
+```bash
+pip install -e ".[tastegraph,web]"
+tastebench tastegraph serve --assets data/tastegraph_assets.jsonl --port 8000   # terminal 1
+tastebench tastegraph seed-demo                                                 # terminal 2 (idempotent)
+npx skills add <owner>/taste-bench --skill tastegraph   # or open skills/tastegraph/SKILL.md
+```
 
 ```bash
 pip install -e ".[tastegraph]"   # numpy; add [web] for the API, [embeddings] for real vectors
@@ -246,7 +258,8 @@ an API key (or leave blank in single-tenant dev mode). The SDK syncs signals, an
   agent-context (set `TASTEGRAPH_EXPLAIN_MODEL`, e.g. `gpt-4o`); templated summary offline.
 - **API playground** tab exercises live `/v1` entity/link/search/ask endpoints.
 
-The layout is responsive — it stacks to a single column on mobile widths.
+Dashboard tabs: **Taste heatmap**, **API playground**, **Intelligence**.
+Walkthrough: [docs/agent-demo.md](docs/agent-demo.md).
 
 ## What it measures
 

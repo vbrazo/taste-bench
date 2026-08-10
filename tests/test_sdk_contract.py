@@ -8,9 +8,12 @@ test enforces it stays loadable server-side.
 import json
 from pathlib import Path
 
-from tastebench.tastegraph.signals.schema import ACTION_WEIGHTS, Signal
+from tastebench.tastegraph.signals.schema import ACTION_WEIGHTS, Signal, dwell_weight
 
 FIXTURE = Path(__file__).resolve().parents[1] / "sdk-js" / "fixtures" / "signal.json"
+DWELL_FIXTURE = Path(__file__).resolve().parents[1] / "sdk-js" / "fixtures" / "signal_dwell.json"
+
+WIRE_FIELDS = {"user_id", "asset_id", "action", "weight", "timestamp", "session_id", "dwell_ms"}
 
 
 def test_fixture_validates_against_signal_model():
@@ -25,4 +28,12 @@ def test_fixture_validates_against_signal_model():
 
 def test_fixture_has_exactly_the_wire_fields():
     data = json.loads(FIXTURE.read_text(encoding="utf-8"))
-    assert set(data.keys()) == {"user_id", "asset_id", "action", "weight", "timestamp", "session_id"}
+    assert set(data.keys()) == WIRE_FIELDS
+
+
+def test_dwell_fixture_scales_weight():
+    data = json.loads(DWELL_FIXTURE.read_text(encoding="utf-8"))
+    sig = Signal.model_validate(data)
+    assert sig.action == "dwell"
+    assert sig.effective_weight() == dwell_weight(8000)
+    assert sig.effective_weight() > dwell_weight(500)

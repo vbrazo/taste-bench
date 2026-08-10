@@ -20,21 +20,47 @@ export function Dashboard() {
   return (
     <div className="dash">
       <header className="dash-nav">
-        <Link to="/" className="brand"><span className="mark" />TasteGraph</Link>
+        <Link to="/" className="brand">
+          <span className="mark" />
+          TasteGraph
+        </Link>
         <div className="tabs">
-          <button className={tab === "heatmap" ? "tab on" : "tab"} onClick={() => setTab("heatmap")}>Taste heatmap</button>
-          <button className={tab === "playground" ? "tab on" : "tab"} onClick={() => setTab("playground")}>API playground</button>
-          <button className={tab === "intelligence" ? "tab on" : "tab"} onClick={() => setTab("intelligence")}>Intelligence</button>
+          <button
+            className={tab === "heatmap" ? "tab on" : "tab"}
+            onClick={() => setTab("heatmap")}
+          >
+            Taste heatmap
+          </button>
+          <button
+            className={tab === "playground" ? "tab on" : "tab"}
+            onClick={() => setTab("playground")}
+          >
+            API playground
+          </button>
+          <button
+            className={tab === "intelligence" ? "tab on" : "tab"}
+            onClick={() => setTab("intelligence")}
+          >
+            Intelligence
+          </button>
         </div>
         <div className="dash-right">
           <span className="status-pill">
             {mode === "connected" ? `● ${endpoint.replace(/^https?:\/\//, "")}` : "○ local mode"}
           </span>
-          <button className="ghost sm" onClick={onLogout}>Log out</button>
+          <button className="ghost sm" onClick={onLogout}>
+            Log out
+          </button>
         </div>
       </header>
       <div className="dash-body">
-        {tab === "heatmap" ? <HeatmapTab /> : tab === "playground" ? <PlaygroundTab /> : <IntelligenceTab />}
+        {tab === "heatmap" ? (
+          <HeatmapTab />
+        ) : tab === "playground" ? (
+          <PlaygroundTab />
+        ) : (
+          <IntelligenceTab />
+        )}
       </div>
     </div>
   );

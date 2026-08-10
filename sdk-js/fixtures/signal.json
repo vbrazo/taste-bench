@@ -4,5 +4,6 @@
   "action": "like",
   "weight": null,
   "timestamp": 1717171717.0,
-  "session_id": "s1"
+  "session_id": "s1",
+  "dwell_ms": null
 }

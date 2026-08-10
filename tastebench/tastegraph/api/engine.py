@@ -48,8 +48,24 @@ class TasteGraphEngine:
     def track(self, signal: Signal) -> None:
         self._signals[signal.user_id].append(signal)
 
-    def track_event(self, user_id: str, asset_id: str, action: str) -> Signal:
-        sig = Signal(user_id=user_id, asset_id=asset_id, action=action)  # type: ignore[arg-type]
+    def track_event(
+        self,
+        user_id: str,
+        asset_id: str,
+        action: str,
+        *,
+        weight: Optional[float] = None,
+        dwell_ms: Optional[float] = None,
+        session_id: Optional[str] = None,
+    ) -> Signal:
+        sig = Signal(
+            user_id=user_id,
+            asset_id=asset_id,
+            action=action,  # type: ignore[arg-type]
+            weight=weight,
+            dwell_ms=dwell_ms,
+            session_id=session_id,
+        )
         self.track(sig)
         return sig
 
@@ -83,16 +99,17 @@ class TasteGraphEngine:
             return []
         return self.index.knn(self.index.vector(asset_id), k=k, exclude={asset_id})
 
-    def agent_context(self, user_id: str) -> dict:
-        """Structured taste read for an LLM/agent (slide 3 #03)."""
+    def agent_context(self, subject_id: str) -> dict:
+        """Structured taste read for an LLM/agent (user or brand subject)."""
         self._api_calls += 1
-        taste = self.user_taste(user_id)
-        card = taste_card(user_id, self._signals.get(user_id, []), self.store)
-        top = self.retrieve(user_id, k=5)
+        taste = self.user_taste(subject_id)
+        card = taste_card(subject_id, self._signals.get(subject_id, []), self.store)
+        top = self.retrieve(subject_id, k=5)
         return {
-            "user_id": user_id,
+            "user_id": subject_id,  # backward-compatible alias
+            "subject_id": subject_id,
             "confidence": taste.confidence,
-            "n_signals": len(self._signals.get(user_id, [])),
+            "n_signals": len(self._signals.get(subject_id, [])),
             "resolved": taste.vector is not None,
             "principles": card.principles,
             "avoid": card.avoid,

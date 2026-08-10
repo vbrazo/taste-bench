@@ -22,8 +22,8 @@ export interface EngagementEvent {
   ts: number; // seconds since epoch
 }
 
-/** Actions the wire format already knows, plus engagement-derived ones the web UI emits. */
-export type EngagementAction = Action | "dwell" | "deep_scroll" | "deep_read";
+/** Actions on the TasteGraph wire format (Python Signal.action). */
+export type EngagementAction = Action;
 
 export interface UserTaste {
   vec: number[] | null; // null == cold start (no positive evidence)

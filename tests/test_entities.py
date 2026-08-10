@@ -71,3 +71,27 @@ def test_link_rejects_bad_action(reg):
     _content(reg, "c1", "x")
     with pytest.raises(EntityError):
         reg.link(Link(source_id="u1", target_id="c1", action="teleport"))
+
+
+def test_brand_links_like_user(reg):
+    reg.create(Entity(id="voice_1", type="brand"))
+    assert reg.kind_of("brand") == "brand"
+    assert reg.kind_of("voice") == "brand"
+    _content(reg, "r1", "Warm specific founder voice, never a blast")
+    _content(reg, "r2", "Cold spammy template blast")
+    reg.link(Link(source_id="voice_1", target_id="r1", action="like"))
+    reg.link(Link(source_id="voice_1", target_id="r2", action="dismiss"))
+    ctx = reg.engine.agent_context("voice_1")
+    assert ctx["subject_id"] == "voice_1"
+    assert ctx["n_signals"] == 2
+    ranked = reg.engine.rerank("voice_1", ["r1", "r2"])
+    order = [a for a, _ in ranked]
+    assert order.index("r1") < order.index("r2")
+
+
+def test_delete_brand_clears_signals(reg):
+    reg.create(Entity(id="b1", type="voice"))
+    _content(reg, "c1", "on-brand copy")
+    reg.link(Link(source_id="b1", target_id="c1", action="like"))
+    reg.delete("b1")
+    assert not reg.engine._signals.get("b1")

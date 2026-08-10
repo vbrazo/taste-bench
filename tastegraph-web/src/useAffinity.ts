@@ -84,9 +84,8 @@ export function useAffinity(assets: AssetVector[], bundleRegions: Region[] = [])
   const track = useCallback(
     (assetId: string, action: EngagementAction, dwellMs?: number) => {
       setEvents((prev) => [...prev, { assetId, action, dwellMs, ts: Date.now() / 1000 }]);
-      // optional server sync for wire-format actions only
-      if (sdk && action !== "dwell" && action !== "deep_scroll" && action !== "deep_read") {
-        sdk.track(assetId, action);
+      if (sdk) {
+        sdk.track(assetId, action, dwellMs != null ? { dwellMs } : undefined);
       }
     },
     [sdk],

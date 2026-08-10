@@ -16,6 +16,11 @@ tastebench tastegraph serve --assets data/tastegraph_assets.jsonl --port 8000
 # add --api-keys keys.json for per-tenant auth (X-API-Key header)
 ```
 
+Seed the demo graph in one command (idempotent): `tastebench tastegraph seed-demo`.
+Wire an agent with the installable skill: [`skills/tastegraph/SKILL.md`](../skills/tastegraph/SKILL.md).
+
+**Agent walkthrough (context → search/rerank → ask → judge):** [agent-demo.md](agent-demo.md)
+
 ## The loop (curl)
 
 ```bash
@@ -52,6 +57,10 @@ curl -s     localhost:8000/v1/clusters
 | `POST /v1/ask` | Taste-personalized Q&A (LLM via `TASTEGRAPH_ASK_MODEL`; templated fallback) |
 | `POST /v1/explain` | Natural-language taste summary (`TASTEGRAPH_EXPLAIN_MODEL`) |
 | `GET /v1/clusters` · `GET /v1/cluster/{id}` | Taste clusters over the catalog |
+| `GET /v1/skills` | OpenAI-style agent tool schemas (`taste_context`, `taste_search`, …); installable skill at [`skills/tastegraph`](../skills/tastegraph/SKILL.md) |
+| `POST /v1/brand/ingest` | Create/update a brand or voice subject from reference texts |
+| `POST /v1/enhance` | Rewrite a draft on-taste for a user/brand `subject_id` |
+| `POST /v1/judge` | Score draft candidates against a user/brand `subject_id` |
 
 ## Python client
 

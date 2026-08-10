@@ -1,0 +1,9 @@
+{
+  "user_id": "anon_abc123",
+  "asset_id": "asset_03",
+  "action": "dwell",
+  "weight": null,
+  "timestamp": 1717171717.0,
+  "session_id": "s1",
+  "dwell_ms": 8000
+}

@@ -17,6 +17,9 @@ EXPECTED = {
     "taste_ask",
     "taste_explain",
     "taste_metrics",
+    "taste_brand_ingest",
+    "taste_enhance",
+    "taste_judge",
 }
 
 

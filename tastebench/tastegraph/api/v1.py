@@ -147,10 +147,31 @@ def build_v1_router(require_engine):
 
     @router.get("/skills")
     def skills():
-        """OpenAI-style agent tool schemas for TasteGraph (Taste OS Phase A)."""
+        """OpenAI-style agent tool schemas for TasteGraph."""
         from ..skills import skills_payload
 
         return skills_payload()
+
+    @router.post("/brand/ingest")
+    def brand_ingest(body: dict, engine: TasteGraphEngine = Depends(require_engine)):
+        from .brand import BrandIngestBody, ingest_brand
+
+        parsed = BrandIngestBody(**body)
+        return _guard(lambda: ingest_brand(engine, parsed))
+
+    @router.post("/enhance")
+    def enhance_route(body: dict, engine: TasteGraphEngine = Depends(require_engine)):
+        from .brand import EnhanceBody, enhance
+
+        parsed = EnhanceBody(**body)
+        return enhance(engine, parsed.subject_id, parsed.prompt)
+
+    @router.post("/judge")
+    def judge_route(body: dict, engine: TasteGraphEngine = Depends(require_engine)):
+        from .brand import JudgeBody, judge
+
+        parsed = JudgeBody(**body)
+        return _guard(lambda: judge(engine, parsed.subject_id, parsed.candidates))
 
     return router
 

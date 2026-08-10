@@ -59,3 +59,25 @@ class TasteGraphClient:
 
     def clusters(self) -> dict:
         return self._request("GET", "/v1/clusters")
+
+    def skills(self) -> dict:
+        return self._request("GET", "/v1/skills")
+
+    def brand_ingest(
+        self,
+        id: str,
+        references: list[dict],
+        *,
+        type: str = "brand",
+        label: Optional[str] = None,
+    ) -> dict:
+        body: dict = {"id": id, "type": type, "references": references}
+        if label is not None:
+            body["label"] = label
+        return self._request("POST", "/v1/brand/ingest", body)
+
+    def enhance(self, subject_id: str, prompt: str) -> dict:
+        return self._request("POST", "/v1/enhance", {"subject_id": subject_id, "prompt": prompt})
+
+    def judge(self, subject_id: str, candidates: list[str]) -> dict:
+        return self._request("POST", "/v1/judge", {"subject_id": subject_id, "candidates": candidates})
