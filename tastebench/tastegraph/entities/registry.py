@@ -38,6 +38,7 @@ class EntityRegistry:
 
     def register_type(self, etype: EntityType) -> EntityType:
         self._types[etype.name] = etype
+        self.engine._autosave()
         return etype
 
     def list_types(self) -> list[EntityType]:
@@ -71,6 +72,7 @@ class EntityRegistry:
             self.engine.ingest([asset])
         # user / brand entities need no engine work until they link
         self._entities[entity.id] = entity
+        self.engine._autosave()
         return entity
 
     def upsert(self, entity: Entity) -> Entity:
@@ -80,6 +82,7 @@ class EntityRegistry:
             if self.kind_of(existing.type) == "content":
                 raise EntityError(f"Cannot upsert content entity {entity.id!r}; delete first.")
             self._entities[entity.id] = entity
+            self.engine._autosave()
             return entity
         return self.create(entity)
 
@@ -108,6 +111,7 @@ class EntityRegistry:
                 self._entities.pop(entity_id, None)
             else:
                 ent.hidden = True
+        self.engine._autosave()
 
     # ---- links (taste building) -------------------------------------------
 

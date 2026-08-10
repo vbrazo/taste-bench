@@ -29,6 +29,15 @@ class TasteGraphEngine:
         self.index = backend or MemoryBackend()
         self._signals: dict[str, list[Signal]] = defaultdict(list)
         self._api_calls = 0
+        self._persist_dir = None  # set by persist.attach_persistence to arm autosave
+
+    def _autosave(self) -> None:
+        """Snapshot state to disk if durability is armed (see tastegraph.persist)."""
+        if self._persist_dir is None:
+            return
+        from ..persist import save_tenant
+
+        save_tenant(self, self._persist_dir)
 
     # ---- ingest / track ----------------------------------------------------
 
@@ -37,6 +46,7 @@ class TasteGraphEngine:
             fp = self.analyzer.analyze(asset)
             self.store.add(fp)
             self.index.add(asset.id, joint_embedding(fp))
+        self._autosave()
         return len(assets)
 
     def remove_asset(self, asset_id: str) -> bool:
@@ -47,6 +57,7 @@ class TasteGraphEngine:
 
     def track(self, signal: Signal) -> None:
         self._signals[signal.user_id].append(signal)
+        self._autosave()
 
     def track_event(
         self,

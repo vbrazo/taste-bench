@@ -45,6 +45,9 @@ class TasteGraphClient:
 
     # ---- queries -----------------------------------------------------------
 
+    def agent_context(self, subject_id: str) -> dict:
+        return self._request("GET", f"/agent-context/{subject_id}")
+
     def search(self, user_id: Optional[str] = None, seed_id: Optional[str] = None, k: int = 10) -> dict:
         return self._request("POST", "/v1/search", {"user_id": user_id, "seed_id": seed_id, "k": k})
 

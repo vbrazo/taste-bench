@@ -52,4 +52,4 @@ Or load from the package: `tastebench/tastegraph/skills/tools.json`.
 2. `taste_enhance` a draft against that `subject_id` (or a user subject).
 3. `taste_judge` competing drafts before send.
 
-Docs: docs/v1-api.md · 10-min agent demo: docs/agent-demo.md · Category: docs/taste-os.md
+Docs: docs/v1-api.md · 10-min agent demo: docs/agent-demo.md · Category: docs/taste-os.md · Pitch: docs/pitch.md

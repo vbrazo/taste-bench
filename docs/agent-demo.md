@@ -143,4 +143,5 @@ for create / link / search / ask. Use **Taste heatmap** for local affinity explo
 ## Next (optional)
 
 - Less slop: `POST /v1/brand/ingest` then `enhance` / `judge` against a voice or user subject  
-- Category notes: [taste-os.md](taste-os.md)
+- Category notes: [taste-os.md](taste-os.md)  
+- Pitch outline: [pitch.md](pitch.md)

@@ -148,6 +148,9 @@ backed by `GET /v1/skills` / [`llm.txt`](tastebench/tastegraph/skills/llm.txt)) 
 wire preference instead of guessing. Enhance/judge keep drafts on-taste (“less slop”). This is
 **preference infrastructure, not a frontend pack.** **10-minute agent demo:**
 [docs/agent-demo.md](docs/agent-demo.md). Category notes: [docs/taste-os.md](docs/taste-os.md).
+Pitch outline: [docs/pitch.md](docs/pitch.md). System design: [docs/architecture.md](docs/architecture.md).
+Integrating an agent (Rose)? Start from the frozen contract:
+[docs/rose-integration.md](docs/rose-integration.md). Pilot deploy: [docs/deploy.md](docs/deploy.md).
 
 Fastest path — serve, seed, and hand an agent the skill:
 

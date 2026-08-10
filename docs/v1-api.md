@@ -8,6 +8,12 @@ An open-source, entity-based API for **taste graphs**. The model is one unified 
 Everything is a thin facade over the in-process `TasteGraphEngine`, so it runs offline with
 the mock analyzer and needs no keys. Interactive OpenAPI docs are served at `/docs`.
 
+> **Stable contract (frozen for consumers).** These routes are the integration surface downstream
+> agents (e.g. Rose) build against — their paths and response shapes are held stable:
+> `GET /agent-context/{id}` · `POST /v1/search` · `POST /v1/rerank` · `POST /v1/brand/ingest` ·
+> `POST /v1/enhance` · `POST /v1/judge` · `GET /v1/skills`. Integration guide:
+> [rose-integration.md](rose-integration.md).
+
 ## Start the server
 
 ```bash
@@ -87,16 +93,21 @@ docker compose up --build # API on :8000, Qdrant on :6333
 curl localhost:8000/health
 ```
 
+Full pilot checklist (auth + LLM + durable state, with the non-root volume caveat):
+[deploy.md](deploy.md).
+
 Key environment variables:
 
 | Var | Meaning |
 |---|---|
 | `TASTEGRAPH_API_KEYS` | JSON `{api-key: tenant}` — enables auth. Unset = dev mode (no key). |
+| `TASTEGRAPH_DATA_DIR` | Directory for durable per-tenant JSONL state. Unset = in-memory only. |
 | `TASTEGRAPH_BACKEND` | `memory` (default) or `qdrant`. |
 | `QDRANT_URL` · `QDRANT_API_KEY` | Qdrant connection (when backend = qdrant). |
 | `TASTEGRAPH_RATE_PER_MIN` · `TASTEGRAPH_RATE_BURST` | Per-key token-bucket rate limit (0 = off). |
 | `TASTEGRAPH_QUOTA_PER_DAY` | Per-key daily quota (0 = off). |
 | `TASTEGRAPH_ASK_MODEL` · `TASTEGRAPH_EXPLAIN_MODEL` | LLM for `/ask` · `/explain`. |
+| `TASTEGRAPH_ENHANCE_MODEL` · `TASTEGRAPH_JUDGE_MODEL` | LLM for `/v1/enhance` · `/v1/judge` (else heuristic mode). |
 
 - `GET /health` is unauthenticated (used by the Docker `HEALTHCHECK`).
 - When limits are exceeded the API returns **429** with a `Retry-After` header. Rate limiting is

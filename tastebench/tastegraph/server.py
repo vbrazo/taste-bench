@@ -22,6 +22,7 @@ from .api.app import create_app
 from .api.ratelimit import RateLimiter
 from .api.tenancy import ApiKeyRegistry, TenantStore
 from .api.engine import TasteGraphEngine
+from .persist import DATA_DIR_ENV
 
 
 def _backend_factory():
@@ -55,7 +56,12 @@ def build_app():
     registry = ApiKeyRegistry(json.loads(keys_raw)) if keys_raw else ApiKeyRegistry()
 
     def engine_factory(tenant: str) -> TasteGraphEngine:
-        return TasteGraphEngine(backend=backend_make(tenant))
+        engine = TasteGraphEngine(backend=backend_make(tenant))
+        if os.environ.get(DATA_DIR_ENV):
+            from .persist import attach_persistence
+
+            attach_persistence(engine, tenant)
+        return engine
 
     store = TenantStore(registry, engine_factory=engine_factory)
     return create_app(tenant_store=store, limiter=_limiter())

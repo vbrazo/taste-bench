@@ -26,6 +26,7 @@ scrape = ["httpx>=0.24", "beautifulsoup4>=4.10"]
 tastegraph = ["numpy>=1.21"]
 vectordb = ["qdrant-client>=1.7"]
 av = ["av>=11", "faster-whisper>=1"]
+mcp = ["mcp>=1.0"]
 dev = ["pytest>=7"]
 
 [project.scripts]

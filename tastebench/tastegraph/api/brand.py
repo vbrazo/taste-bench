@@ -94,6 +94,7 @@ def enhance(engine: TasteGraphEngine, subject_id: str, prompt: str) -> dict:
         return {
             "enhanced": _templated_enhance(engine, subject_id, prompt),
             "source": "template",
+            "mode": "heuristic",
             "subject_id": subject_id,
         }
     try:
@@ -114,11 +115,12 @@ def enhance(engine: TasteGraphEngine, subject_id: str, prompt: str) -> dict:
             max_tokens=500,
         )
         text = resp["choices"][0]["message"]["content"].strip()
-        return {"enhanced": text, "source": model, "subject_id": subject_id}
+        return {"enhanced": text, "source": model, "mode": "llm", "subject_id": subject_id}
     except Exception:  # noqa: BLE001
         return {
             "enhanced": _templated_enhance(engine, subject_id, prompt),
             "source": "template-fallback",
+            "mode": "heuristic",
             "subject_id": subject_id,
         }
 
@@ -150,7 +152,7 @@ def judge(engine: TasteGraphEngine, subject_id: str, candidates: list[str]) -> d
     results.sort(key=lambda r: r["score"], reverse=True)
 
     if not model:
-        return {"results": results, "source": "template", "subject_id": subject_id}
+        return {"results": results, "source": "template", "mode": "heuristic", "subject_id": subject_id}
 
     try:
         import litellm  # lazy
@@ -187,6 +189,6 @@ def judge(engine: TasteGraphEngine, subject_id: str, candidates: list[str]) -> d
                 }
             )
         merged.sort(key=lambda r: r["score"], reverse=True)
-        return {"results": merged, "source": model, "subject_id": subject_id}
+        return {"results": merged, "source": model, "mode": "llm", "subject_id": subject_id}
     except Exception:  # noqa: BLE001
-        return {"results": results, "source": "template-fallback", "subject_id": subject_id}
+        return {"results": results, "source": "template-fallback", "mode": "heuristic", "subject_id": subject_id}

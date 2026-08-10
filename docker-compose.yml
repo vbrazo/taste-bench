@@ -6,10 +6,18 @@ services:
     environment:
       TASTEGRAPH_BACKEND: qdrant
       QDRANT_URL: http://qdrant:6333
+      # Durable per-tenant state (bind-mounted below), survives restarts.
+      TASTEGRAPH_DATA_DIR: /data/tastegraph_state
       # Enable auth by mapping api-keys to tenants (JSON). Omit for dev mode.
-      # TASTEGRAPH_API_KEYS: '{"key_a":"tenant_a"}'
+      # TASTEGRAPH_API_KEYS: '{"rose_key":"rose"}'
+      # LLM-backed enhance/judge (else heuristic mode). Provider secret via env, e.g. OPENAI_API_KEY.
+      # TASTEGRAPH_ENHANCE_MODEL: gpt-4o
+      # TASTEGRAPH_JUDGE_MODEL: gpt-4o
+      # OPENAI_API_KEY: ${OPENAI_API_KEY}
       TASTEGRAPH_RATE_PER_MIN: "120"
       TASTEGRAPH_QUOTA_PER_DAY: "100000"
+    volumes:
+      - ./data/tastegraph_state:/data/tastegraph_state
     depends_on:
       qdrant:
         condition: service_started

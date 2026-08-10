@@ -8,6 +8,11 @@ enabled so the browser SPA can call the API cross-origin.
 
 from __future__ import annotations
 
+import json
+import logging
+import os
+import sys
+import time
 from typing import Optional
 
 from pydantic import BaseModel
@@ -15,6 +20,18 @@ from pydantic import BaseModel
 from ..assets.schema import Asset
 from .engine import TasteGraphEngine
 from .tenancy import TenantStore
+
+
+def _access_logger() -> logging.Logger:
+    """Dedicated stdout logger emitting one JSON object per request."""
+    log = logging.getLogger("tastegraph.access")
+    if not log.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter("%(message)s"))
+        log.addHandler(handler)
+        log.setLevel(logging.INFO)
+        log.propagate = False
+    return log
 
 
 def _require_fastapi():
@@ -80,6 +97,30 @@ def create_app(
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    if os.environ.get("TASTEGRAPH_LOG_REQUESTS", "1") not in ("0", "false", ""):
+        access_log = _access_logger()
+
+        @app.middleware("http")
+        async def _log_requests(request: Request, call_next):
+            start = time.perf_counter()
+            response = await call_next(request)
+            tenant = tenant_store.registry.tenant_for(request.headers.get("x-api-key"))
+            try:
+                access_log.info(
+                    json.dumps(
+                        {
+                            "tenant": tenant,
+                            "method": request.method,
+                            "path": request.url.path,
+                            "status": response.status_code,
+                            "latency_ms": round((time.perf_counter() - start) * 1000, 2),
+                        }
+                    )
+                )
+            except Exception:  # noqa: BLE001 - never let logging break a request
+                pass
+            return response
 
     if limiter is not None and limiter.enabled:
         @app.middleware("http")

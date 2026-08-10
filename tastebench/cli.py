@@ -298,6 +298,12 @@ def _cmd_tg_seed_demo(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_tg_mcp(args: argparse.Namespace) -> int:  # pragma: no cover - runs an stdio server
+    from .tastegraph.mcp_server import main as mcp_main
+
+    return mcp_main(args.base_url, args.api_key)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="tastebench", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -426,6 +432,11 @@ def build_parser() -> argparse.ArgumentParser:
     tg_seed.add_argument("--api-key", dest="api_key", default=None, help="Optional X-API-Key for tenant auth.")
     tg_seed.add_argument("--subject-id", dest="subject_id", default="u_demo", help="Subject id to personalize for.")
     tg_seed.set_defaults(func=_cmd_tg_seed_demo)
+
+    tg_mcp = tg_sub.add_parser("mcp", help="Run an MCP server (stdio) over a running TasteGraph (needs 'mcp' extra).")
+    tg_mcp.add_argument("--base-url", dest="base_url", default=None, help="Server base URL (default env TASTEGRAPH_BASE_URL or http://127.0.0.1:8000).")
+    tg_mcp.add_argument("--api-key", dest="api_key", default=None, help="Optional X-API-Key (default env TASTEGRAPH_API_KEY).")
+    tg_mcp.set_defaults(func=_cmd_tg_mcp)
 
     return parser
 
