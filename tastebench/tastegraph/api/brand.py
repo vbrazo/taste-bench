@@ -144,9 +144,38 @@ def _score_template(engine: TasteGraphEngine, subject_id: str, text: str, idx: i
     return {"id": f"c{idx}", "text": text, "score": score, "rationale": rationale}
 
 
+def _trained_judge(subject_id: str, candidates: list[str]) -> Optional[dict]:
+    """Score a 2-candidate pair with a locally-trained classifier, if one is configured."""
+    if len(candidates) != 2:
+        return None  # classifier is binary A-vs-B; N>2 falls back this pass
+    from .trained_models import load_judge
+
+    jm = load_judge()
+    if jm is None:
+        return None
+    task = f"Which draft better matches {subject_id}'s taste?"
+    choice, conf = jm.trainable.predict_choice(task, "c0", candidates[0], "c1", candidates[1])
+    results = [
+        {
+            "id": cid,
+            "text": text,
+            "score": round(conf if choice == cid else 1.0 - conf, 3),
+            "rationale": "trained classifier",
+        }
+        for cid, text in (("c0", candidates[0]), ("c1", candidates[1]))
+    ]
+    results.sort(key=lambda r: r["score"], reverse=True)
+    return {"results": results, "source": "trained", "mode": "trained", "subject_id": subject_id}
+
+
 def judge(engine: TasteGraphEngine, subject_id: str, candidates: list[str]) -> dict:
     if not candidates:
         raise EntityError("Judge requires at least one candidate.")
+
+    trained = _trained_judge(subject_id, candidates)
+    if trained is not None:
+        return trained
+
     model = _model(JUDGE_MODEL_ENV, ASK_MODEL_ENV)
     results = [_score_template(engine, subject_id, c, i) for i, c in enumerate(candidates)]
     results.sort(key=lambda r: r["score"], reverse=True)

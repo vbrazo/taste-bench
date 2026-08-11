@@ -20,6 +20,7 @@ EXPECTED = {
     "taste_brand_ingest",
     "taste_enhance",
     "taste_judge",
+    "taste_export_pairs",
 }
 
 

@@ -97,7 +97,7 @@ def test_cold_start_without_seed_is_total(engine):
 def test_agent_context_structure(engine):
     ctx = engine.agent_context("u_minimal")
     assert ctx["resolved"] is True
-    assert ctx["n_signals"] == 4
+    assert ctx["n_signals"] == 6
     assert 0.0 <= ctx["confidence"] <= 1.0
     assert isinstance(ctx["principles"], list)
     assert "asset_01" not in ctx["top_assets"]  # engaged assets excluded from retrieval
@@ -106,8 +106,8 @@ def test_agent_context_structure(engine):
 def test_metrics(engine):
     m = engine.metrics()
     assert m["assets_in_graph"] == 12
-    assert m["people_in_graph"] == 2
-    assert m["signals_ingested"] == 8
+    assert m["people_in_graph"] == 5
+    assert m["signals_ingested"] == 27
 
 
 def test_retrieve_excludes_engaged(engine):

@@ -1,11 +1,13 @@
 # TasteGraph pitch outline
 
-Slide-by-slide narrative for TasteGraph / TasteBench. Structure mirrors category peers
-(e.g. Galya) but claims only what this repo can defend: **open, local-first preference
-infrastructure** that agents can call — with **TasteBench** so lift is measurable.
+Slide-by-slide narrative for TasteGraph / TasteBench. Claims only what the repo can defend
+today: **open, local-first preference infrastructure** agents can call — durable, skill/MCP
+wired, measurable with TasteBench.
 
-Use this as a deck outline or README narrative spine. Prefer numbers from your own evals;
-do not invent cold-start benchmarks you have not run.
+Use as a deck outline or README spine. Prefer your own eval numbers; do not invent cold-start
+benchmarks you have not run.
+
+Diagrams: [architecture.md](architecture.md). Pilot ops: [deploy.md](deploy.md).
 
 ---
 
@@ -13,9 +15,9 @@ do not invent cold-start benchmarks you have not run.
 
 **Open taste infrastructure for AI agents**
 
-Sub: Self-host the preference graph. Wire it as a skill. Measure “less slop.”
+Sub: Self-host the preference graph. Wire it as a skill or MCP. Measure “less slop.”
 
-Not: “The world model for taste.”
+Not: “The world model for taste.” Not: a frontend anti-slop skill pack.
 
 ---
 
@@ -26,174 +28,182 @@ Today’s engines memorize *what* people clicked, not *why*.
 They break when a **new person** or a **new product** shows up — and agents fall back to
 generic defaults (fluent, off-taste slop).
 
+Every product reinvents preference as ad-hoc prompting.
+
 ---
 
 ## 3. Solution
 
-**B2B / builder taste infrastructure:** model human preference as a **taste graph**, expose
-it as structured context that apps and agents query — for personalization, ranking, and
-on-taste decisions.
+**Builder taste infrastructure:** model human preference as a **taste graph**, expose it as
+structured context apps and agents query — for personalization, ranking, and on-taste
+decisions.
 
-Local-first. Forkable. Agent-callable.
+Local-first. Forkable. Durable across restarts. Agent-callable (HTTP · skill · MCP).
 
 ---
 
 ## 4. What it powers
 
-Three product faces (same engine):
+Three faces, one engine:
 
-1. **Rerank & discovery** — on-taste items rise from the first signals, not months of history.
+1. **Rerank & discovery** — on-taste items rise from early signals, not months of history.
 2. **Customer intelligence** — metrics, clusters, human-readable taste cards.
-3. **Agent context** — structured read (`agent_context` / skills) so agents act on who the
-   subject is, not a generic default. Optional **enhance / judge** for less-slop generation.
+3. **Agent context** — structured read so agents act on who the subject is; optional
+   **enhance / judge** for less-slop generation (`mode: llm | heuristic` so quality is honest).
 
 ---
 
 ## 5. How it works
 
 ```text
-Signals (SDK)          Processing                 Taste graph
-assets + actions  →    content intel (7D+)   →    joint embeddings
-                       audience / subject         subject ↔ content
-                              │                          │
-                              └──────────┬───────────────┘
-                                         ▼
-                    API  ·  LLM retrieval  ·  Agent skill
+Capture                     Engine                         Serve
+media + signals + voice  →  fingerprints + taste profiles  →  /v1 · agent-context
+refs                        joint embeddings                    skill · MCP · SPA
+        │                         │                              │
+        └─────────────────────────┴──────────────────────────────┘
+                    Memory/Qdrant  ·  tenant JSONL persist
+                    TasteBench eval loop (measure claims)
 ```
 
-Install path for builders:
+**10-minute builder path (shipped):**
 
 ```bash
 pip install -e ".[tastegraph,web]"
 tastebench tastegraph serve --assets data/tastegraph_assets.jsonl --port 8000
 tastebench tastegraph seed-demo
-# install skill: skills/tastegraph/SKILL.md  (npx skills add … --skill tastegraph)
+# skill: skills/tastegraph/SKILL.md
+# MCP:   tastebench tastegraph mcp   # optional extra
 ```
+
+Pilot host: Docker Compose + API keys + data volume — see [deploy.md](deploy.md).
 
 ---
 
 ## 6. Why TasteGraph (not a closed API clone)
 
-| Pillar | Claim |
-|--------|--------|
-| **Open & local-first** | Run offline with mock analyzer; swap VLM / Qdrant when ready |
-| **Map perception** | Fingerprints + signals → principles / avoid / confidence — not click tables |
-| **Cold-start shaped** | Content similarity + early signals; don’t require a closed world KG |
-| **Measurable** | TasteBench pairwise eval — the differentiator closed decks often skip |
-| **Agent-ready** | `GET /v1/skills` + installable `SKILL.md` + HTTP recipes |
+| Pillar | Claim (today) |
+|--------|----------------|
+| **Open & local-first** | Mock analyzer offline; swap VLM / Qdrant when ready |
+| **Durable** | Per-tenant JSONL state + vector backend — survives restart |
+| **Map perception** | Fingerprints + signals → principles / avoid / confidence |
+| **Cold-start shaped** | Content similarity + early signals — no proprietary world KG |
+| **Measurable** | TasteBench + voice outreach eval fixture |
+| **Agent-ready** | `GET /v1/skills` · installable `SKILL.md` · thin MCP · Python client |
 
-Refuse: proprietary multi-billion entity catalog as the product; frontend “anti-slop” skill packs
-(that’s a different market — e.g. tasteskill.dev).
+Refuse: closed hosted-only lock-in; frontend “taste skill” packs as the category (orthogonal).
 
 ---
 
-## 7. Competitive map (axes)
+## 7. Competitive map
 
-**X:** Taste intelligence (fingerprint depth, affinity quality, eval lift)  
-**Y:** Agent-readiness (skills, docs, MCP later, self-serve install)
+**X:** Taste intelligence · **Y:** Agent-readiness
 
-| Player | Where they sit | Your move |
-|--------|----------------|-----------|
-| Closed taste APIs (Galya-like) | High taste claim, hosted | Match architecture story; win on open + measure |
-| Rec infra / cultural KG | Taste without agent package | Stay agent-native |
-| Persona / passport networks | Agent-ish, identity-heavy | Stay preference runtime, not identity network |
-| Frontend taste skills | Agent-ready, **not** preference infra | Orthogonal — don’t compete |
-| **TasteGraph** | Open graph + skills + TasteBench | Own bottom-right→top-right honestly |
+| Player | Your move |
+|--------|-----------|
+| Closed taste APIs | Match the architecture story; win on open + measure + self-host |
+| Rec infra / cultural KG | Stay agent-native (skill + MCP), not catalog theater |
+| Persona / passport networks | Stay preference runtime, not identity product |
+| Frontend taste skills | Orthogonal — we store and query preference, not UI rules |
+| **TasteGraph** | Open graph + durable serve + skill/MCP + TasteBench |
 
 ---
 
 ## 8. Ideal customers
 
-1. **The builder** — prototypes personalization; finds you on GitHub; plugs in via serve + skill.
-2. **The AI engineer** — wires agents (Cursor, Claude Code, in-house) to `/v1` instead of ad-hoc prompts.
-3. **The channel / product agent** — embeds TasteGraph (e.g. outreach, recommenders) so *their*
-   customers get taste without building the graph.
+1. **The builder** — GitHub → serve → seed-demo → skill in under 10 minutes.
+2. **The AI engineer** — wires Cursor / Claude Code / in-house agents to `/v1` or MCP.
+3. **The channel product** — embeds TasteGraph so *their* users get fit / voice / less slop
+   without building a graph (outbound, recommenders, copilots).
 
-Decision-maker / enterprise comes after **proven lift**, not before.
+Enterprise / C-suite after proven lift — not before.
 
 ---
 
 ## 9. Monetization (open core + cloud)
 
-| Tier | Who | What |
-|------|-----|------|
-| **Free / OSS** | Indie, research, hackers | Local serve, skills, TasteBench, single-tenant |
-| **Cloud / Startup** | Early teams | Hosted graph, API keys, quotas, backups |
-| **Growth / Scale** | Seed–A products | Multi-tenant, support, SLA |
-| **Channel** | Agent platforms | Land → expand; revenue share / ACV per deployment |
+| Tier | What |
+|------|------|
+| **Free / OSS** | Local serve, skill, MCP, TasteBench, single-tenant |
+| **Cloud / Startup** | Hosted graph, API keys, quotas, durable backups |
+| **Growth / Scale** | Multi-tenant, support, SLA |
+| **Channel** | Land → expand; rev-share / ACV per deployment |
 
-Charge for **ops and reliability**, not for locking the personalize API.
+Charge for **ops and reliability**, not for locking personalize APIs.
 
 ---
 
 ## 10. Go-to-market
 
-**Two motions, one flywheel**
-
 - **Product-led:** free self-host → 10-min demo → measured lift → paid cloud  
-- **Channel-led:** agent builders embed TasteGraph → their customers become yours  
+- **Channel-led:** agent products embed TasteGraph → their customers become yours  
 
-Distribution: GitHub, agent skill install, Discord/X, design partners (not conference theater first).
-
----
-
-## 11. Traction template (fill with real numbers)
-
-- Built: API · skills · dashboard · seed-demo · TasteBench  
-- Next: MCP · cold-start eval published · TasteGraph Cloud stub  
-- Pipeline: design partners · LOIs · ACV range (your numbers)
+Distribution: GitHub, skill install, MCP, Discord/X, design partners.
 
 ---
 
-## 12. Market size (honest wedge, not $393B)
+## 11. Traction (update with real numbers)
 
-**Wedge TAM (example structure — replace with your research):**
+**Built (in repo today):**
+
+- Personalize API · enhance/judge · seed-demo  
+- Installable agent skill · thin MCP  
+- Tenant persistence · request logging · deploy checklist  
+- Dashboard (heatmap / playground / intelligence) · TasteBench + voice eval fixture  
+- Architecture + integration docs  
+
+**Next:**
+
+- Published cold-start / lift case study with numbers  
+- TasteGraph Cloud (hosted)  
+- Design partners / LOIs (your pipeline)
+
+---
+
+## 12. Market size (honest wedge)
 
 `ACV × # AI-native products that need preference memory`
 
-Lead with the **AI-native personalization / agent tools** wedge. Expansion to “every LLM
-system” is a later slide, not the ask.
+Lead with agent tools + personalization. Skip “every LLM / humanoid” TAM theater.
 
 ---
 
-## 13. Path (Land → Expand → Own)
+## 13. Path
 
 | Phase | Focus |
 |-------|--------|
-| **Land** | OSS funnel + skill install; 10 design partners; cloud beta |
+| **Land** | OSS funnel + skill/MCP; design partners; cloud beta |
 | **Expand** | Channel embeds; TasteBench case studies; multi-tenant |
 | **Own** | Default preference layer agents call — still open core |
-
-Skip year-5 $100M slides until Year-1 reality exists.
 
 ---
 
 ## 14. Use of funds (if raising)
 
-Weight what compounds *this* product:
-
-1. **Agent distribution + DX** — skill, MCP, demos, docs  
+1. **Agent distribution + DX** — skill, MCP, demos  
 2. **Eval & fingerprint depth** — TasteBench datasets, better defaults  
-3. **Hosted ops** — multi-tenant cloud, compliance when deals need it  
+3. **Hosted ops** — durable multi-tenant cloud, compliance when deals need it  
 4. **GTM** — design partners, founder-led  
 
-De-emphasize “world model R&D” as the hero line item.
+Not: “world model R&D” as the hero line.
 
 ---
 
-## 15. The ask (optional)
+## 15. Close
 
-State capital + runway goal only if fundraising. Otherwise end on:
+Fundraising ask only if raising. Otherwise:
 
-> Clone it. Seed it. Call it from your agent. Measure it with TasteBench.
+> Clone it. Seed it. Call it from your agent (skill or MCP). Measure it with TasteBench.
 
 ---
 
-## Appendix — live proof path
+## Appendix
 
-See [agent-demo.md](agent-demo.md) and [skills/tastegraph/SKILL.md](../skills/tastegraph/SKILL.md).
-
-Category / architecture detail: [taste-os.md](taste-os.md).
-
-Agent integration (Rose) contract: [rose-integration.md](rose-integration.md) ·
-Pilot deploy checklist: [deploy.md](deploy.md).
+| Doc | Use |
+|-----|-----|
+| [agent-demo.md](agent-demo.md) | 10-minute proof |
+| [architecture.md](architecture.md) | System diagrams |
+| [deploy.md](deploy.md) | Pilot Compose checklist |
+| [v1-api.md](v1-api.md) | Frozen consumer routes |
+| [taste-os.md](taste-os.md) | Category / roadmap |
+| [rose-integration.md](rose-integration.md) | Example channel consumer contract |
+| [`skills/tastegraph/SKILL.md`](../skills/tastegraph/SKILL.md) | Agent install |

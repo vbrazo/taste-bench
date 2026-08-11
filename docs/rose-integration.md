@@ -63,7 +63,9 @@ Request: `{ "subject_id":"founder_voice", "candidates":["draft A","draft B"] }`
                {"id":"c1","text":"draft B","score":0.44,"rationale":"…"} ],
   "source": "template", "mode": "heuristic", "subject_id": "founder_voice" }
 ```
-Results are sorted best-first. Use `mode` to decide whether the score is LLM- or heuristic-grade.
+Results are sorted best-first. `mode` is `heuristic`, `llm`, or `trained` (a locally-trained
+classifier — see [training.md](training.md)); use it to decide how much to trust the score.
+`/v1/rerank` likewise reports `mode`: `affinity` or `reward`.
 
 ### `GET /v1/skills` — live tool schemas
 Returns `{ "tools": [ …OpenAI-style function schemas… ], "names": ["taste_context", …] }`.

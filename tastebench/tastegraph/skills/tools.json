@@ -150,6 +150,21 @@
         },
         "x-tastegraph": { "method": "POST", "path": "/v1/judge" }
       }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "taste_export_pairs",
+        "description": "Export preference pairs derived from accumulated signals (training data). GET /v1/export/pairs",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "format": { "type": "string", "enum": ["json", "jsonl"] }
+          },
+          "required": []
+        },
+        "x-tastegraph": { "method": "GET", "path": "/v1/export/pairs" }
+      }
     }
   ]
 }

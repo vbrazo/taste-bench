@@ -59,14 +59,16 @@ curl -s     localhost:8000/v1/clusters
 | `POST /v1/entity/type` · `GET /v1/entity/types` | Register / list custom entity types |
 | `POST /v1/entity/{id}/link` | Build taste: link a user to content |
 | `POST /v1/search` | Discovery by taste (`user_id`) or content similarity (`seed_id`) |
-| `POST /v1/rerank` | Reorder candidate content by a user's taste |
+| `POST /v1/rerank` | Reorder candidate content by a user's taste (`"mode"`: `affinity`, or `reward` when a trained reward model is loaded) |
 | `POST /v1/ask` | Taste-personalized Q&A (LLM via `TASTEGRAPH_ASK_MODEL`; templated fallback) |
 | `POST /v1/explain` | Natural-language taste summary (`TASTEGRAPH_EXPLAIN_MODEL`) |
 | `GET /v1/clusters` · `GET /v1/cluster/{id}` | Taste clusters over the catalog |
 | `GET /v1/skills` | OpenAI-style agent tool schemas (`taste_context`, `taste_search`, …); installable skill at [`skills/tastegraph`](../skills/tastegraph/SKILL.md) |
 | `POST /v1/brand/ingest` | Create/update a brand or voice subject from reference texts |
 | `POST /v1/enhance` | Rewrite a draft on-taste for a user/brand `subject_id` |
-| `POST /v1/judge` | Score draft candidates against a user/brand `subject_id` |
+| `POST /v1/judge` | Score draft candidates against a user/brand `subject_id` (`"mode"`: `heuristic` / `llm` / `trained`) |
+| `GET /v1/export/pairs` | Preference pairs from accumulated signals (`?format=json\|jsonl`) — training data |
+| `GET /v1/export/features` | Per-subject taste feature vectors (`subject_id`, `vector`, `confidence`) |
 
 ## Python client
 

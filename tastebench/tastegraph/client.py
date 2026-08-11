@@ -66,6 +66,12 @@ class TasteGraphClient:
     def skills(self) -> dict:
         return self._request("GET", "/v1/skills")
 
+    def export_pairs(self) -> dict:
+        return self._request("GET", "/v1/export/pairs")
+
+    def export_features(self) -> dict:
+        return self._request("GET", "/v1/export/features")
+
     def brand_ingest(
         self,
         id: str,

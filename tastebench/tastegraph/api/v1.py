@@ -66,6 +66,13 @@ def build_v1_router(require_engine):
         except EntityError as exc:
             raise HTTPException(status_code=400, detail=str(exc))
 
+    def _asset_text(engine: TasteGraphEngine, asset_id: str) -> str:
+        if asset_id in engine.store:
+            cap = engine.store.get(asset_id).semantic.caption
+            if cap:
+                return cap
+        return asset_id
+
     # ---- entities ----------------------------------------------------------
 
     @router.post("/entity")
@@ -119,8 +126,19 @@ def build_v1_router(require_engine):
 
     @router.post("/rerank")
     def rerank(body: RerankBody, engine: TasteGraphEngine = Depends(require_engine)):
+        from .trained_models import load_reward
+
+        reward = load_reward()
+        if reward is not None:
+            task = f"Which asset better matches {body.user_id}'s taste?"
+            scored = [
+                (cid, reward.score(task, _asset_text(engine, cid)))
+                for cid in body.candidates
+            ]
+            scored.sort(key=lambda t: t[1], reverse=True)
+            return {"results": [{"id": a, "score": round(s, 4)} for a, s in scored], "mode": "reward"}
         ranked = engine.rerank(body.user_id, body.candidates)
-        return {"results": [{"id": a, "score": s} for a, s in ranked]}
+        return {"results": [{"id": a, "score": s} for a, s in ranked], "mode": "affinity"}
 
     @router.post("/ask")
     def ask_route(body: AskBody, engine: TasteGraphEngine = Depends(require_engine)):
@@ -172,6 +190,42 @@ def build_v1_router(require_engine):
 
         parsed = JudgeBody(**body)
         return _guard(lambda: judge(engine, parsed.subject_id, parsed.candidates))
+
+    # ---- training export (serve -> train bridge) ---------------------------
+
+    @router.get("/export/pairs")
+    def export_pairs(format: str = "json", engine: TasteGraphEngine = Depends(require_engine)):
+        """Preference pairs derived from accumulated signals (feeds RewardModel/TrainableJudge)."""
+        from dataclasses import asdict
+
+        from ...training.dataset import to_pairwise_pairs
+        from ...training.from_signals import signals_to_examples
+
+        pairs = [asdict(p) for p in to_pairwise_pairs(signals_to_examples(engine))]
+        if format == "jsonl":
+            import json as _json
+
+            from fastapi.responses import PlainTextResponse
+
+            body = "".join(_json.dumps(p) + "\n" for p in pairs)
+            return PlainTextResponse(body, media_type="application/x-ndjson")
+        return {"pairs": pairs, "count": len(pairs)}
+
+    @router.get("/export/features")
+    def export_features(engine: TasteGraphEngine = Depends(require_engine)):
+        """Per-subject taste feature vectors (for external models / offline analysis)."""
+        features = []
+        for subject_id in engine._signals:
+            taste = engine.user_taste(subject_id)
+            features.append(
+                {
+                    "subject_id": subject_id,
+                    "confidence": taste.confidence,
+                    "n_signals": len(engine._signals.get(subject_id, [])),
+                    "vector": [float(x) for x in taste.vector] if taste.vector is not None else None,
+                }
+            )
+        return {"features": features, "count": len(features)}
 
     return router
 

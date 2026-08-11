@@ -31,3 +31,6 @@ coverage/
 htmlcov/
 .coverage
 *.cover
+
+# Trained model output dirs
+models/

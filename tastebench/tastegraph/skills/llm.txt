@@ -37,6 +37,7 @@ Or load from the package: `tastebench/tastegraph/skills/tools.json`.
 | taste_brand_ingest | POST /v1/brand/ingest `{"id","type","references":[…]}` |
 | taste_enhance | POST /v1/enhance `{"subject_id","prompt"}` |
 | taste_judge | POST /v1/judge `{"subject_id","candidates":[…]}` |
+| taste_export_pairs | GET /v1/export/pairs `?format=json\|jsonl` (training data) |
 
 ## Minimal loops
 
